@@ -9,25 +9,15 @@ import logger from "@adonisjs/core/services/logger";
 export default class UserService {
   constructor(protected keycloakService: KeycloakService) {}
 
-  async findAll({ page = 1, size = 10, includeRole }: FindAll): Promise<User[]> {
+  async findAll({ page = 1, size = 10 }: FindAll): Promise<User[]> {
     return User
       .query()
-      .if(includeRole, (query) => {
-        query.preload('roles', (query) => {
-          query.preload('permissions')
-        })
-      })
       .paginate(page, size)
   }
 
-  async findById(userId: string, { includeRole }: FindById): Promise<User> {
+  async findById(userId: string, { }: FindById): Promise<User> {
     return User.query()
       .where('id', userId)
-      .if(includeRole, (query) => {
-        query.preload('roles', (query) => {
-          query.preload('permissions')
-        })
-      })
       .firstOrFail()
   }
 

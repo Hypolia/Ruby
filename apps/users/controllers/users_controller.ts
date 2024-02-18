@@ -8,15 +8,17 @@ import logger from "@adonisjs/core/services/logger";
 
 @inject()
 export default class UsersController {
-  constructor(protected userService: UserService, protected keycloakService: KeycloakService) {}
+  constructor(
+    protected userService: UserService,
+    protected keycloakService: KeycloakService
+  ) {}
 
   async index({ request, response, bouncer }: HttpContext) {
     await bouncer.with(UserPolicy).authorize('view' as never)
     const page = request.input('page', 1)
     const size = request.input('size', 30)
-    const includeRole = request.input('includeRole', false)
 
-    const users = await this.userService.findAll({ page, size, includeRole })
+    const users = await this.userService.findAll({ page, size })
 
 
     return response.send(users)

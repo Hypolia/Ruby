@@ -8,12 +8,9 @@
 */
 
 import router from '@adonisjs/core/services/router'
-import app from "@adonisjs/core/services/app";
 
 router.get('/', async ({ response }) => {
-
-  const t = await app.container.make('ws')
-
-  console.log(t)
-  return response.send('Hello world')
+  return response.send({
+    hello: 'world',
+  })
 })

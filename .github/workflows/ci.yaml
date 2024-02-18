@@ -1,36 +1,7 @@
-name: CI/Build Docker Image From Tag And Repository
+name: CI
 
 on:
   workflow_call:
-    inputs:
-      dockerfile:
-        description: "The path to the Dockerfile"
-        required: false
-        type: string
-        default: "Dockerfile"
-      context:
-        description: "The build directory of the image"
-        required: false
-        type: string
-        default: "."
-      image-name:
-        required: true
-        type: string
-        description: "The name of the image"
-        default: "api"
-      build-args:
-        required: false
-        type: string
-        description: "List of build args"
-      tag:
-        required: false
-        type: string
-        description: "The git tag to checkout"
-      repository:
-        required: false
-        type: string
-        description: "The repository to checkout"
-
     secrets:
       CONTAINER_REGISTRY_TOKEN:
         required: true
@@ -40,92 +11,68 @@ on:
         required: true
       PAT:
         required: true
-
   workflow_dispatch:
-    inputs:
-      dockerfile:
-        description: "The path to the Dockerfile"
-        required: false
-        type: string
-        default: "Dockerfile"
-      context:
-        description: "The build directory of the image"
-        required: false
-        type: string
-        default: "."
-      image-name:
-        required: true
-        type: string
-        description: "The name of the image"
-      build-args:
-        required: false
-        type: string
-        description: "List of build args"
-      tag:
-        required: false
-        type: string
-        description: "The git tag to checkout"
-      repository:
-        required: true
-        type: string
-        description: "The repository to checkout"
+    repository:
+      required: true
+      type: string
+      description: "The repository to checkout"
+    image-name:
+      required: true
+      type: string
+      description: "The image name to build"
+      default: "ruby"
   push:
     tags:
       - '*'
 
 jobs:
-  prepare:
+  build-and-push:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
-          repository: ${{ inputs.repository }}
-          fetch-tags: true
-          fetch-depth: 0
-  build-and-push-image:
-    name: Docker build and push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.tag }}
-          repository: ${{ inputs.repository }}
+          ref: main
+          repository: leadc0de/adonis-backend
           token: ${{ secrets.PAT }}
           fetch-tags: true
           fetch-depth: 0
-      - name: Extract tag version
-        id: extract_tag
-        run: echo "TAG_VERSION=$(echo ${GITHUB_REF#refs/tags/})" >> $GITHUB_ENV
+
+
+      - name: Determine version
+        id: version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
+
       - name: Add Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/api
+            ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/hypolia/${{ inputs.image-name }}
           tags: |
             latest
-            ${{ env.TAG_VERSION }}
             buildcache
+            ${{ steps.version.outputs.VERSION }}
+
       - name: Login to container registry
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
           password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
           registry: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}
+
       - name: Setup Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Display tag version
-        run: echo "Tag version is ${{ env.TAG_VERSION }}"
-
-      - name: Build and Push
+      - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          file: ./Dockerfile
           context: .
-          build-args: ${{ inputs.build-args }}
+          file: ./Dockerfile
           push: true
-          tags: ${{ env.TAG_VERSION }}
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=hypolia/ruby:buildcache
+          cache-to: type=gha,mode=max,scope=hypolia/ruby:buildcache
+

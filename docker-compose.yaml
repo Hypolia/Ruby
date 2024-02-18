@@ -7,6 +7,79 @@ networks:
     name: leadcode
 
 services:
+  configsvr1:
+    container_name: configsvr1
+    image: mongo:latest
+    command: mongod --configsvr --replSet config_rs --dbpath /data/db --port 27017
+    ports:
+      - 10001:27017
+    volumes:
+      - configsvr1:/data/db
+    networks:
+      - leadcode
+
+  configsvr2:
+    container_name: configsvr2
+    image: mongo:latest
+    command: mongod --configsvr --replSet config_rs --dbpath /data/db --port 27017
+    ports:
+      - 10002:27017
+    volumes:
+      - configsvr2:/data/db
+    networks:
+      - leadcode
+
+  configsvr3:
+    container_name: configsvr3
+    image: mongo:latest
+    command: mongod --configsvr --replSet config_rs --dbpath /data/db --port 27017
+    ports:
+      - 10003:27017
+    volumes:
+      - configsvr3:/data/db
+    networks:
+      - leadcode
+
+  shardsvr1_1:
+    container_name: shardsvr1_1
+    image: mongo:latest
+    command: mongod --shardsvr --replSet shard1_rs --dbpath /data/db --port 27017
+    ports:
+      - 20001:27017
+    networks:
+      - leadcode
+    volumes:
+      - shardsvr1_1:/data/db
+
+  shardsvr2_1:
+    container_name: shardsvr2_1
+    image: mongo:latest
+    command: mongod --shardsvr --replSet shard2_rs --dbpath /data/db --port 27017
+    ports:
+      - 20002:27017
+    networks:
+      - leadcode
+    volumes:
+      - shardsvr2_1:/data/db
+  shardsvr3_1:
+    container_name: shardsvr3_1
+    image: mongo:latest
+    command: mongod --shardsvr --replSet shard3_rs --dbpath /data/db --port 27017
+    ports:
+      - 20003:27017
+    networks:
+      - leadcode
+    volumes:
+      - shardsvr3_1:/data/db
+
+  mongos:
+    container_name: mongos
+    image: mongo:latest
+    command: mongos --configdb config_rs/configsvr1:27017,configsvr2:27017,configsvr3:27017 --port 27017 --bind_ip_all
+    ports:
+      - 30000:27017
+
+
   postgres:
     container_name: postgres
     image: postgres:13
@@ -68,3 +141,9 @@ volumes:
   redis_volume:
   minio_storage: {}
   keycloak_data: {}
+  configsvr1:
+  configsvr2:
+  configsvr3:
+  shardsvr1_1:
+  shardsvr2_1:
+  shardsvr3_1:
