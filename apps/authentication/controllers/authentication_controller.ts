@@ -15,8 +15,8 @@ export default class AuthenticationController {
   ) {
   }
 
-  async login({request, response}: HttpContext) {
-    const {username, password} = await request.validateUsing(loginCredentialsValidator)
+  async login({ request, response }: HttpContext) {
+    const { username, password } = await request.validateUsing(loginCredentialsValidator)
     const token = await this.keycloakService.loginWithPassword(username, password)
 
     return response.send(token)

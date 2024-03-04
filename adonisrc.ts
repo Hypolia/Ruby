@@ -34,7 +34,8 @@ export default defineConfig({
     () => import('@adonisjs/session/session_provider'),
     () => import('@adonisjs/auth/auth_provider'),
     () => import('@adonisjs/bouncer/bouncer_provider'),
-    () => import('#providers/app_provider')
+    () => import('#providers/app_provider'),
+    () => import('@adonisjs/redis/redis_provider')
   ],
 
   /*
@@ -49,8 +50,7 @@ export default defineConfig({
     () => import('#start/routes'), () => import('#start/kernel'),
     () => import('#apps/users/routes'),
     () => import('#apps/authentication/routes'),
-    () => import('#start/ws')
-  ],
+    () => import('#start/ws'), () => import('#apps/servers/routes')],
 
   /*
   |--------------------------------------------------------------------------

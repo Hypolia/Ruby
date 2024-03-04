@@ -125,8 +125,10 @@ export default class KeycloakService {
     }
   }
 
-  public async loginWithPassword(username: string, password: string) {
+  async loginWithPassword(username: string, password: string) {
     logger.info(`User login: ${username}`)
+
+    console.log(this.config, username, password)
 
     try {
       const resp = await axios.post(

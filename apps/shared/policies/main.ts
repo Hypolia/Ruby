@@ -12,8 +12,10 @@
 |
 */
 
-import {usersPolicies} from "#apps/users/policies";
+import { usersPolicies } from '#apps/users/policies'
+import { serversPolicies } from '#apps/servers/policies'
 
 export const policies = {
-  ...usersPolicies
+  ...usersPolicies,
+  ...serversPolicies,
 }

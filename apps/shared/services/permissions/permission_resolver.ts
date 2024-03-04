@@ -7,7 +7,7 @@ export default class PermissionResolver {
     return data[key]?.roles ?? []
   }
 
-  public createResolve(resourceAccess: ResourceAccess, key: string): PermissionResolverBuilder {
+  createResolve(resourceAccess: ResourceAccess, key: string): PermissionResolverBuilder {
     return new PermissionResolverBuilder(this, resourceAccess, key)
   }
 }

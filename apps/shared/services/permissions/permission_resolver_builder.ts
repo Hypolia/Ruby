@@ -7,10 +7,9 @@ export default class PermissionResolverBuilder {
     private resourceAccess: ResourceAccess, private key: string
   ) {}
 
-  public async verifyAccess(...permissions: string[]): Promise<boolean> {
+  async verifyAccess(...permissions: string[]): Promise<boolean> {
     const userResourcesAccess = await this.resolver.getResourceAccess(this.resourceAccess, this.key)
 
-    return permissions
-      .some(permission => userResourcesAccess.includes(permission))
+    return permissions.some((permission) => userResourcesAccess.includes(permission))
   }
 }
