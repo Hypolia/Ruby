@@ -8,6 +8,7 @@ router
     router
       .group(() => {
         router.get('/', [ServersController, 'index'])
+        router.get('/events', [ServersController, 'events'])
         router.get('/stats', [ServersController, 'stats'])
         router.get('/:id', [ServersController, 'show'])
         router.post('/', [ServersController, 'store'])

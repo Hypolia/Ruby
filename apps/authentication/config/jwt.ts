@@ -9,12 +9,12 @@ export function jwtGuard<T extends AccessTokensUserProviderContract<unknown>>(co
     async resolver() {
       const { default: Model } = await config.model()
       const provider = {
-        model: Model
+        model: Model,
       }
 
       return (ctx: HttpContext) => {
         return new JwtGuard(ctx, provider as any, new KeycloakService())
       }
-    }
+    },
   }
 }

@@ -67,6 +67,8 @@ export class JwtGuard<UserProvider extends AccessTokensUserProviderContract<unkn
   public async verifyToken(token: string): Promise<string | JwtPayload> {
     try {
       const key = await this.keycloakService.getPublicCert()
+
+      
       const publicKey = `-----BEGIN CERTIFICATE-----\n${key}\n-----END CERTIFICATE-----`
 
       const decodedToken = jwt.decode(token, {complete: true})
@@ -74,6 +76,8 @@ export class JwtGuard<UserProvider extends AccessTokensUserProviderContract<unkn
 
       return jwt.verify(token, publicKey, { algorithms: [algorithm] })
     } catch (e) {
+      console.log(e);
+      
       throw new authErrors.E_UNAUTHORIZED_ACCESS(
         'Unauthorized access', {
           guardDriverName: this.driverName

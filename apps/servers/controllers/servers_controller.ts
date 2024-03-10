@@ -7,6 +7,9 @@ import {
   getServerValidator,
 } from '#apps/servers/validators/server'
 import ServerPolicy from '#apps/servers/policies/server_policy'
+import rabbit from '#apps/shared/services/rabbit'
+import logger from '@adonisjs/core/services/logger'
+import redis from '@adonisjs/redis/services/main'
 
 @inject()
 export default class ServersController {
@@ -18,8 +21,37 @@ export default class ServersController {
   async index({ bouncer, request }: HttpContext) {
     await bouncer.with(ServerPolicy).authorize('view' as never)
     const dto = await request.validateUsing(getServerValidator)
+    console.log(dto);
+    
 
-    return this.serverService.findAll(dto)
+    //return this.serverService.findAll(dto)
+
+    logger.info('Sending message to rabbit')
+    //transmit.broadcast('servers', { data: [{ name: 'test' }] })
+
+    try {
+      const servers = [
+        {
+          id: 1,
+          name: 'Server 1',
+        },
+        {
+          id: 2,
+          name: 'Server 2',
+        },
+      ]
+      await redis.set('servers', JSON.stringify(servers))
+      await rabbit.sendToQueue('test2', {
+        message: 'Hello World',
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  async events(ctx: HttpContext) {
+    console.log(ctx.request.id())
+
   }
 
   /**

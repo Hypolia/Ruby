@@ -2,6 +2,9 @@ import type { ApplicationService } from '@adonisjs/core/types'
 import { Server } from 'socket.io'
 import server from '@adonisjs/core/services/server'
 import Mongo from '#apps/shared/services/mongo'
+import rabbit from '#apps/shared/services/rabbit'
+import RabbitManager from '#apps/shared/rabbit/rabbit'
+import { rabbitConfig } from '#config/rabbit'
 
 export default class AppProvider {
   constructor(protected app: ApplicationService) {}
@@ -9,7 +12,11 @@ export default class AppProvider {
   /**
    * Register bindings to the container
    */
-  register() {}
+  register() {
+    this.app.container.singleton('rabbit', () => {
+      return new RabbitManager(rabbitConfig)
+    })
+  }
 
   /**
    * The container bindings have booted
@@ -42,5 +49,7 @@ export default class AppProvider {
   /**
    * Preparing to shutdown the app
    */
-  async shutdown() {}
+  async shutdown() {
+    await rabbit.closeConnection()
+  }
 }

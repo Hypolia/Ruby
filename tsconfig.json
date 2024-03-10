@@ -4,6 +4,7 @@
     "rootDir": "./",
     "outDir": "./build",
     "paths": {
+      "@adonisjs/rabbit/types": ["./apps/shared/rabbit/types/rabbit.js"],
       "#apps/*": ["./apps/*.js"],
       "#controllers/*": ["./apps/controllers/*.js"],
       "#exceptions/*": ["./apps/exceptions/*.js"],
